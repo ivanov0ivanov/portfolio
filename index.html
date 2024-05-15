@@ -198,12 +198,13 @@
 	modal.style.zIndex = "1000";
 	modal.style.textAlign = "center";
 	modal.innerHTML = `
-        <h2 style="color: #0f0;">Гра завершена!</h2>
+        <h2 id="modal-message" style="color: #0f0;"></h2>
         <button id="modal-restart-button" style="padding: 10px 20px; margin: 10px; background-color: #0f0; border: none; cursor: pointer;">Почати знову</button>
         <button id="modal-exit-button" style="padding: 10px 20px; margin: 10px; background-color: #f00; border: none; cursor: pointer;">Вийти</button>
     `;
 	document.body.appendChild(modal);
 
+	const modalMessage = document.getElementById("modal-message");
 	const modalRestartButton = document.getElementById("modal-restart-button");
 	const modalExitButton = document.getElementById("modal-exit-button");
 
@@ -222,7 +223,11 @@
 		endGameButton.style.display = "none";
 		enableScroll();
 		clearKeys();  // Очищаємо стан клавіш при завершенні гри
+		gameActive = false;  // Завершення гри
 	});
+
+	modalRestartButton.addEventListener("click", restartGame);
+	modalExitButton.addEventListener("click", exitGame);
 
 	document.addEventListener("keydown", (e) => {
 		keys[e.key] = true;
@@ -260,7 +265,9 @@
 				y: Math.random() * (gameCanvas.height - playerSize),
 				width: playerSize * 2,
 				height: playerSize * 2,
-				destroyed: false
+				destroyed: false,
+				speedX: 0,
+				speedY: 0
 			});
 		}
 	}
@@ -272,6 +279,8 @@
 		movePlayer();
 		if (playerMoved && !victory) {
 			moveMonsters();
+		} else if (victory) {
+			moveMonstersRandomly();
 		}
 		drawPlayer();
 		drawItems();
@@ -296,6 +305,19 @@
 			const moveY = (dy / distance) * 1; // Швидкість монстрів по Y
 			monster.x += moveX;
 			monster.y += moveY;
+		});
+	}
+
+	function moveMonstersRandomly () {
+		monsters.forEach(monster => {
+			monster.x += monster.speedX;
+			monster.y += monster.speedY;
+			// Перевірка виходу за межі canvas
+			if (monster.x < 0 || monster.x > gameCanvas.width - monster.width ||
+				monster.y < 0 || monster.y > gameCanvas.height - monster.height) {
+				monster.speedX *= -1;
+				monster.speedY *= -1;
+			}
 		});
 	}
 
@@ -328,12 +350,19 @@
 				items.splice(index, 1);
 				if (items.length === 0) {
 					victory = true;
+					monsters.forEach(monster => {
+						const dx = monster.x - playerX;
+						const dy = monster.y - playerY;
+						const distance = Math.sqrt(dx * dx + dy * dy);
+						monster.speedX = (dx / distance) * 3;
+						monster.speedY = (dy / distance) * 3;
+					});
 					destroyMonstersWithEffect().then(() => showModal(true));
 				}
 			}
 		});
 		monsters.forEach(monster => {
-			if (playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
+			if (!victory && playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
 				playerY < monster.y + monster.height && playerY + playerSize > monster.y) {
 				showModal(false);
 			}
@@ -342,17 +371,14 @@
 
 	function showModal (isVictory) {
 		gameActive = false;
+		modalMessage.textContent = isVictory ? "Ви виграли!" : "Гра завершена!";
 		modal.style.display = "block";
 		disableScroll();
-		modalRestartButton.addEventListener("click", restartGame);
-		modalExitButton.addEventListener("click", exitGame);
 	}
 
 	function hideModal () {
 		modal.style.display = "none";
 		enableScroll();
-		modalRestartButton.removeEventListener("click", restartGame);
-		modalExitButton.removeEventListener("click", exitGame);
 	}
 
 	function restartGame () {
@@ -387,14 +413,19 @@
 			const explosionInterval = explosionDuration / explosionFrames;
 			let currentFrame = 0;
 
+			const fragments = 5;
+			const fragmentSize = monster.width / fragments;
+			const fragmentSpeed = 3;
+
 			const explosionAnimation = setInterval(() => {
 				ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
-				const explosionSize = monster.width + currentFrame * (monster.width / explosionFrames);
-				const halfExplosionSize = explosionSize / 2;
-				ctx.fillStyle = `rgba(255, 0, 0, ${1 - currentFrame / explosionFrames})`;
-				ctx.beginPath();
-				ctx.arc(monster.x + monster.width / 2, monster.y + monster.height / 2, halfExplosionSize, 0, Math.PI * 2);
-				ctx.fill();
+				for (let i = 0; i < fragments; i++) {
+					const angle = (Math.PI * 2 / fragments) * i;
+					const fragmentX = monster.x + fragmentSpeed * currentFrame * Math.cos(angle);
+					const fragmentY = monster.y + fragmentSpeed * currentFrame * Math.sin(angle);
+					ctx.fillStyle = `rgba(255, 0, 0, ${1 - currentFrame / explosionFrames})`;
+					ctx.fillRect(fragmentX, fragmentY, fragmentSize, fragmentSize);
+				}
 				currentFrame++;
 				if (currentFrame > explosionFrames) {
 					clearInterval(explosionAnimation);
@@ -420,9 +451,7 @@
 
 	function enableScroll () {
 		window.removeEventListener("scroll", preventDefault, { passive: false });
-		document.body.style.overflow =
-
-			"auto";
+		document.body.style.overflow = "auto";
 	}
 
 	function preventDefault (e) {
