@@ -172,10 +172,14 @@
 	const ctx = gameCanvas.getContext("2d");
 	let playerX = 200, playerY = 200;
 	const playerSize = 20;
+	let playerColor = "#0f0";
 	const keys = {};
+	const items = [];
+	const obstacles = [];
 
 	startGameButton.addEventListener("click", () => {
 		gameArea.style.display = "block";
+		startGame();
 		gameLoop();
 	});
 
@@ -187,10 +191,34 @@
 		keys[e.key] = false;
 	});
 
+	function startGame () {
+		// Генеруємо предмети для збирання
+		for (let i = 0; i < 5; i++) {
+			items.push({
+				x: Math.random() * (gameCanvas.width - playerSize),
+				y: Math.random() * (gameCanvas.height - playerSize),
+				color: getRandomColor()
+			});
+		}
+
+		// Генеруємо перешкоди
+		for (let i = 0; i < 3; i++) {
+			obstacles.push({
+				x: Math.random() * (gameCanvas.width - playerSize),
+				y: Math.random() * (gameCanvas.height - playerSize),
+				width: playerSize * 2,
+				height: playerSize * 2
+			});
+		}
+	}
+
 	function gameLoop () {
 		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 		movePlayer();
 		drawPlayer();
+		drawItems();
+		drawObstacles();
+		checkCollisions();
 		requestAnimationFrame(gameLoop);
 	}
 
@@ -202,8 +230,50 @@
 	}
 
 	function drawPlayer () {
-		ctx.fillStyle = "#0f0";
+		ctx.fillStyle = playerColor;
 		ctx.fillRect(playerX, playerY, playerSize, playerSize);
+	}
+
+	function drawItems () {
+		items.forEach(item => {
+			ctx.fillStyle = item.color;
+			ctx.fillRect(item.x, item.y, playerSize, playerSize);
+		});
+	}
+
+	function drawObstacles () {
+		ctx.fillStyle = "#f00";
+		obstacles.forEach(obstacle => {
+			ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+		});
+	}
+
+	function checkCollisions () {
+		items.forEach((item, index) => {
+			if (playerX < item.x + playerSize && playerX + playerSize > item.x &&
+				playerY < item.y + playerSize && playerY + playerSize > item.y) {
+				playerColor = item.color;
+				items.splice(index, 1);
+			}
+		});
+
+		obstacles.forEach(obstacle => {
+			if (playerX < obstacle.x + obstacle.width && playerX + playerSize > obstacle.x &&
+				playerY < obstacle.y + obstacle.height && playerY + playerSize > obstacle.y) {
+				// Перешкоди змушують гравця повертатися до початкової точки
+				playerX = 200;
+				playerY = 200;
+			}
+		});
+	}
+
+	function getRandomColor () {
+		const letters = "0123456789ABCDEF";
+		let color = "#";
+		for (let i = 0; i < 6; i++) {
+			color += letters[Math.floor(Math.random() * 16)];
+		}
+		return color;
 	}
 </script>
 </body>
