@@ -180,7 +180,7 @@
 	let playerColor = "#0f0";
 	const keys = {};
 	const items = [];
-	const obstacles = [];
+	const monsters = [];
 
 	startGameButton.addEventListener("click", () => {
 		gameArea.style.display = "block";
@@ -210,9 +210,9 @@
 	function startGame () {
 		clearKeys();  // Очищаємо стан клавіш при перезапуску гри
 
-		// Очищаємо масиви предметів і перешкод
+		// Очищаємо масиви предметів і монстрів
 		items.length = 0;
-		obstacles.length = 0;
+		monsters.length = 0;
 
 		// Генеруємо предмети для збирання
 		for (let i = 0; i < 5; i++) {
@@ -223,9 +223,9 @@
 			});
 		}
 
-		// Генеруємо перешкоди
+		// Генеруємо монстрів
 		for (let i = 0; i < 3; i++) {
-			obstacles.push({
+			monsters.push({
 				x: Math.random() * (gameCanvas.width - playerSize),
 				y: Math.random() * (gameCanvas.height - playerSize),
 				width: playerSize * 2,
@@ -237,9 +237,10 @@
 	function gameLoop () {
 		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 		movePlayer();
+		moveMonsters();
 		drawPlayer();
 		drawItems();
-		drawObstacles();
+		drawMonsters();
 		checkCollisions();
 		requestAnimationFrame(gameLoop);
 	}
@@ -249,6 +250,18 @@
 		if (keys["ArrowDown"] && playerY < gameCanvas.height - playerSize) playerY += 2;
 		if (keys["ArrowLeft"] && playerX > 0) playerX -= 2;
 		if (keys["ArrowRight"] && playerX < gameCanvas.width - playerSize) playerX += 2;
+	}
+
+	function moveMonsters () {
+		monsters.forEach(monster => {
+			const dx = playerX - monster.x;
+			const dy = playerY - monster.y;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			const moveX = (dx / distance) * 1; // Швидкість монстрів по X
+			const moveY = (dy / distance) * 1; // Швидкість монстрів по Y
+			monster.x += moveX;
+			monster.y += moveY;
+		});
 	}
 
 	function drawPlayer () {
@@ -263,10 +276,10 @@
 		});
 	}
 
-	function drawObstacles () {
+	function drawMonsters () {
 		ctx.fillStyle = "#f00";
-		obstacles.forEach(obstacle => {
-			ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+		monsters.forEach(monster => {
+			ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
 		});
 	}
 
@@ -284,11 +297,10 @@
 				}
 			}
 		});
-
-		obstacles.forEach(obstacle => {
-			if (playerX < obstacle.x + obstacle.width && playerX + playerSize > obstacle.x &&
-				playerY < obstacle.y + obstacle.height && playerY + playerSize > obstacle.y) {
-				alert("Ви зіткнулися з перешкодою! Почнемо спочатку.");
+		monsters.forEach(monster => {
+			if (playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
+				playerY < monster.y + monster.height && playerY + playerSize > monster.y) {
+				alert("Ви зіткнулися з монстром! Почнемо спочатку.");
 				startGame();
 				playerX = 200;
 				playerY = 200;
@@ -328,5 +340,6 @@
 	gameCanvas.addEventListener("mouseenter", disableScroll);
 	gameCanvas.addEventListener("mouseleave", enableScroll);
 </script>
+
 </body>
 </html>
