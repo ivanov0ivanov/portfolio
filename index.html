@@ -181,6 +181,29 @@
 	const keys = {};
 	const items = [];
 	const monsters = [];
+	let gameActive = false;
+
+	// Створення модального вікна
+	const modal = document.createElement("div");
+	modal.style.position = "fixed";
+	modal.style.top = "50%";
+	modal.style.left = "50%";
+	modal.style.transform = "translate(-50%, -50%)";
+	modal.style.backgroundColor = "#333";
+	modal.style.padding = "20px";
+	modal.style.border = "4px solid #fff";
+	modal.style.display = "none";
+	modal.style.zIndex = "1000";
+	modal.style.textAlign = "center";
+	modal.innerHTML = `
+        <h2 style="color: #0f0;">Гра завершена!</h2>
+        <button id="modal-restart-button" style="padding: 10px 20px; margin: 10px; background-color: #0f0; border: none; cursor: pointer;">Почати знову</button>
+        <button id="modal-exit-button" style="padding: 10px 20px; margin: 10px; background-color: #f00; border: none; cursor: pointer;">Вийти</button>
+    `;
+	document.body.appendChild(modal);
+
+	const modalRestartButton = document.getElementById("modal-restart-button");
+	const modalExitButton = document.getElementById("modal-exit-button");
 
 	startGameButton.addEventListener("click", () => {
 		gameArea.style.display = "block";
@@ -214,6 +237,8 @@
 		items.length = 0;
 		monsters.length = 0;
 
+		gameActive = true;
+
 		// Генеруємо предмети для збирання
 		for (let i = 0; i < 5; i++) {
 			items.push({
@@ -235,6 +260,8 @@
 	}
 
 	function gameLoop () {
+		if (!gameActive) return;
+
 		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 		movePlayer();
 		moveMonsters();
@@ -290,22 +317,48 @@
 				playerColor = item.color;
 				items.splice(index, 1);
 				if (items.length === 0) {
-					alert("Ви зібрали всі предмети! Почнемо спочатку.");
-					startGame();
-					playerX = 200;
-					playerY = 200;
+					showModal();
 				}
 			}
 		});
 		monsters.forEach(monster => {
 			if (playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
 				playerY < monster.y + monster.height && playerY + playerSize > monster.y) {
-				alert("Ви зіткнулися з монстром! Почнемо спочатку.");
-				startGame();
-				playerX = 200;
-				playerY = 200;
+				showModal();
 			}
 		});
+	}
+
+	function showModal () {
+		gameActive = false;
+		modal.style.display = "block";
+		disableScroll();
+		modalRestartButton.addEventListener("click", restartGame);
+		modalExitButton.addEventListener("click", exitGame);
+	}
+
+	function hideModal () {
+		modal.style.display = "none";
+		enableScroll();
+		modalRestartButton.removeEventListener("click", restartGame);
+		modalExitButton.removeEventListener("click", exitGame);
+	}
+
+	function restartGame () {
+		hideModal();
+		startGame();
+		playerX = 200;
+		playerY = 200;
+		gameActive = true;
+		gameLoop();
+	}
+
+	function exitGame () {
+		hideModal();
+		gameArea.style.display = "none";
+		startGameButton.style.display = "inline-block";
+		endGameButton.style.display = "none";
+		enableScroll();
 	}
 
 	function getRandomColor () {
