@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Портфоліо Front-End розробника</title>
+	<style>
+		body {
+			background-color: #000;
+			color: #fff;
+			font-family: 'Press Start 2P', cursive;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+		}
+
+		header {
+			background-color: #333;
+			padding: 20px;
+		}
+
+		h1 {
+			color: #0f0;
+		}
+
+		nav a {
+			color: #0f0;
+			text-decoration: none;
+			margin: 0 15px;
+		}
+
+		section {
+			padding: 20px;
+		}
+
+		.pixel-border {
+			border: 4px solid #fff;
+			padding: 10px;
+			display: inline-block;
+			margin: 10px 0;
+		}
+
+		.portfolio-item {
+			margin: 20px 0;
+		}
+
+		.contact-form input, .contact-form textarea {
+			width: 100%;
+			padding: 10px;
+			margin: 10px 0;
+			border: 2px solid #fff;
+			background-color: #000;
+			color: #fff;
+			font-family: 'Press Start 2P', cursive;
+		}
+
+		.contact-form button {
+			padding: 10px 20px;
+			background-color: #0f0;
+			border: none;
+			font-family: 'Press Start 2P', cursive;
+			cursor: pointer;
+		}
+
+		footer {
+			background-color: #333;
+			padding: 10px;
+		}
+
+		.social-links a {
+			color: #0f0;
+			margin: 0 10px;
+		}
+	</style>
+</head>
+<body>
+<header>
+	<h1>Портфоліо Front-End розробника</h1>
+	<nav>
+		<a href="#about">Про мене</a>
+		<a href="#portfolio">Портфоліо</a>
+		<a href="#contact">Контакти</a>
+	</nav>
+</header>
+<section id="about">
+	<h2>Про мене</h2>
+	<div class="pixel-border">
+		<p>Я Front-End розробник з великим досвідом роботи. Моя спеціалізація - створення сучасних та інтерактивних
+			вебдодатків.</p>
+	</div>
+</section>
+<section id="portfolio">
+	<h2>Портфоліо</h2>
+	<div class="portfolio-item pixel-border">
+		<h3>Проєкт 1</h3>
+		<p>Опис проєкту 1...</p>
+	</div>
+	<div class="portfolio-item pixel-border">
+		<h3>Проєкт 2</h3>
+		<p>Опис проєкту 2...</p>
+	</div>
+</section>
+<section id="contact">
+	<h2>Контакти</h2>
+	<div class="pixel-border contact-form">
+		<form>
+			<input type="text" name="name" placeholder="Ваше ім'я">
+			<input type="email" name="email" placeholder="Ваш Email">
+			<textarea name="message" rows="5" placeholder="Ваше повідомлення"></textarea>
+			<button type="submit">Надіслати</button>
+		</form>
+	</div>
+	<div class="social-links">
+		<a href="https://twitter.com" target="_blank">Twitter</a>
+		<a href="https://linkedin.com" target="_blank">LinkedIn</a>
+		<a href="https://github.com" target="_blank">GitHub</a>
+	</div>
+</section>
+<footer>
+	<p>&copy; 2024 Портфоліо Front-End розробника. Всі права захищені.</p>
+</footer>
+<script>
+	// Інтерактивний елемент - міні-гру
+	const startGame = () => {
+		alert("Гра почалася! Зберіть всі пікселі!");
+	};
+
+	// Додаємо подію для запуску гри
+	document.addEventListener("DOMContentLoaded", (event) => {
+		const gameButton = document.createElement("button");
+		gameButton.innerText = "Почати міні-гру";
+		gameButton.style.padding = "10px 20px";
+		gameButton.style.marginTop = "20px";
+		gameButton.style.backgroundColor = "#0f0";
+		gameButton.style.border = "none";
+		gameButton.style.cursor = "pointer";
+		gameButton.onclick = startGame;
+		document.querySelector("#about").appendChild(gameButton);
+	});
+</script>
+</body>
+</html>
