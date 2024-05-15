@@ -169,6 +169,7 @@
 <footer>
 	<p>&copy; 2024 Портфоліо Front-End розробника. Всі права захищені.</p>
 </footer>
+```html
 <script>
 	const startGameButton = document.getElementById("start-game-button");
 	const endGameButton = document.getElementById("end-game-button");
@@ -182,6 +183,7 @@
 	const items = [];
 	const monsters = [];
 	let gameActive = false;
+	let playerMoved = false;
 
 	// Створення модального вікна
 	const modal = document.createElement("div");
@@ -224,6 +226,7 @@
 
 	document.addEventListener("keydown", (e) => {
 		keys[e.key] = true;
+		playerMoved = true;
 	});
 
 	document.addEventListener("keyup", (e) => {
@@ -238,6 +241,7 @@
 		monsters.length = 0;
 
 		gameActive = true;
+		playerMoved = false;
 
 		// Генеруємо предмети для збирання
 		for (let i = 0; i < 5; i++) {
@@ -264,7 +268,9 @@
 
 		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 		movePlayer();
-		moveMonsters();
+		if (playerMoved) {
+			moveMonsters();
+		}
 		drawPlayer();
 		drawItems();
 		drawMonsters();
@@ -317,24 +323,27 @@
 				playerColor = item.color;
 				items.splice(index, 1);
 				if (items.length === 0) {
-					showModal();
+					showModal(true);
 				}
 			}
 		});
 		monsters.forEach(monster => {
 			if (playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
 				playerY < monster.y + monster.height && playerY + playerSize > monster.y) {
-				showModal();
+				showModal(false);
 			}
 		});
 	}
 
-	function showModal () {
+	function showModal (victory) {
 		gameActive = false;
 		modal.style.display = "block";
 		disableScroll();
 		modalRestartButton.addEventListener("click", restartGame);
 		modalExitButton.addEventListener("click", exitGame);
+		if (victory) {
+			destroyMonsters();
+		}
 	}
 
 	function hideModal () {
@@ -359,6 +368,19 @@
 		startGameButton.style.display = "inline-block";
 		endGameButton.style.display = "none";
 		enableScroll();
+	}
+
+	function destroyMonsters () {
+		monsters.forEach((monster, index) => {
+			setTimeout(() => {
+				ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+				setTimeout(() => {
+					ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
+				}, 100);
+			}, index * 100);
+		});
 	}
 
 	function getRandomColor () {
