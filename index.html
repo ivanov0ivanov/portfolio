@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Портфоліо Front-End розробника</title>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	<style>
 		body {
 			background-color: #000;
@@ -17,6 +18,7 @@
 		header {
 			background-color: #333;
 			padding: 20px;
+			animation: fadeIn 2s ease-in-out;
 		}
 
 		h1 {
@@ -27,10 +29,16 @@
 			color: #0f0;
 			text-decoration: none;
 			margin: 0 15px;
+			transition: color 0.3s;
+		}
+
+		nav a:hover {
+			color: #ff0;
 		}
 
 		section {
 			padding: 20px;
+			animation: fadeIn 2s ease-in-out;
 		}
 
 		.pixel-border {
@@ -42,6 +50,7 @@
 
 		.portfolio-item {
 			margin: 20px 0;
+			animation: fadeIn 2s ease-in-out;
 		}
 
 		.contact-form input, .contact-form textarea {
@@ -60,16 +69,46 @@
 			border: none;
 			font-family: 'Press Start 2P', cursive;
 			cursor: pointer;
+			transition: background-color 0.3s;
+		}
+
+		.contact-form button:hover {
+			background-color: #ff0;
 		}
 
 		footer {
 			background-color: #333;
 			padding: 10px;
+			animation: fadeIn 2s ease-in-out;
 		}
 
 		.social-links a {
 			color: #0f0;
 			margin: 0 10px;
+			transition: color 0.3s;
+		}
+
+		.social-links a:hover {
+			color: #ff0;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+			to {
+				opacity: 1;
+			}
+		}
+
+		.game-area {
+			display: none;
+			margin: 20px 0;
+		}
+
+		.game-canvas {
+			background-color: #000;
+			border: 4px solid #fff;
 		}
 	</style>
 </head>
@@ -87,6 +126,13 @@
 	<div class="pixel-border">
 		<p>Я Front-End розробник з великим досвідом роботи. Моя спеціалізація - створення сучасних та інтерактивних
 			вебдодатків.</p>
+	</div>
+	<button id="start-game-button"
+	        style="padding: 10px 20px; margin-top: 20px; background-color: #0f0; border: none; cursor: pointer;">Почати
+		міні-гру
+	</button>
+	<div class="game-area">
+		<canvas id="game-canvas" width="400" height="400" class="game-canvas"></canvas>
 	</div>
 </section>
 <section id="portfolio">
@@ -120,23 +166,45 @@
 	<p>&copy; 2024 Портфоліо Front-End розробника. Всі права захищені.</p>
 </footer>
 <script>
-	// Інтерактивний елемент - міні-гру
-	const startGame = () => {
-		alert("Гра почалася! Зберіть всі пікселі!");
-	};
+	const startGameButton = document.getElementById("start-game-button");
+	const gameArea = document.querySelector(".game-area");
+	const gameCanvas = document.getElementById("game-canvas");
+	const ctx = gameCanvas.getContext("2d");
+	let playerX = 200, playerY = 200;
+	const playerSize = 20;
+	const keys = {};
 
-	// Додаємо подію для запуску гри
-	document.addEventListener("DOMContentLoaded", (event) => {
-		const gameButton = document.createElement("button");
-		gameButton.innerText = "Почати міні-гру";
-		gameButton.style.padding = "10px 20px";
-		gameButton.style.marginTop = "20px";
-		gameButton.style.backgroundColor = "#0f0";
-		gameButton.style.border = "none";
-		gameButton.style.cursor = "pointer";
-		gameButton.onclick = startGame;
-		document.querySelector("#about").appendChild(gameButton);
+	startGameButton.addEventListener("click", () => {
+		gameArea.style.display = "block";
+		gameLoop();
 	});
+
+	document.addEventListener("keydown", (e) => {
+		keys[e.key] = true;
+	});
+
+	document.addEventListener("keyup", (e) => {
+		keys[e.key] = false;
+	});
+
+	function gameLoop () {
+		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+		movePlayer();
+		drawPlayer();
+		requestAnimationFrame(gameLoop);
+	}
+
+	function movePlayer () {
+		if (keys["ArrowUp"] && playerY > 0) playerY -= 2;
+		if (keys["ArrowDown"] && playerY < gameCanvas.height - playerSize) playerY += 2;
+		if (keys["ArrowLeft"] && playerX > 0) playerX -= 2;
+		if (keys["ArrowRight"] && playerX < gameCanvas.width - playerSize) playerX += 2;
+	}
+
+	function drawPlayer () {
+		ctx.fillStyle = "#0f0";
+		ctx.fillRect(playerX, playerY, playerSize, playerSize);
+	}
 </script>
 </body>
 </html>
