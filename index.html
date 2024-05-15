@@ -131,6 +131,10 @@
 	        style="padding: 10px 20px; margin-top: 20px; background-color: #0f0; border: none; cursor: pointer;">Почати
 		міні-гру
 	</button>
+	<button id="end-game-button"
+	        style="padding: 10px 20px; margin-top: 20px; background-color: #f00; border: none; cursor: pointer; display: none;">
+		Завершити гру
+	</button>
 	<div class="game-area">
 		<canvas id="game-canvas" width="400" height="400" class="game-canvas"></canvas>
 	</div>
@@ -167,6 +171,7 @@
 </footer>
 <script>
 	const startGameButton = document.getElementById("start-game-button");
+	const endGameButton = document.getElementById("end-game-button");
 	const gameArea = document.querySelector(".game-area");
 	const gameCanvas = document.getElementById("game-canvas");
 	const ctx = gameCanvas.getContext("2d");
@@ -179,8 +184,19 @@
 
 	startGameButton.addEventListener("click", () => {
 		gameArea.style.display = "block";
+		startGameButton.style.display = "none";
+		endGameButton.style.display = "inline-block";
 		startGame();
 		gameLoop();
+		disableScroll();
+	});
+
+	endGameButton.addEventListener("click", () => {
+		gameArea.style.display = "none";
+		startGameButton.style.display = "inline-block";
+		endGameButton.style.display = "none";
+		enableScroll();
+		clearKeys();  // Очищаємо стан клавіш при завершенні гри
 	});
 
 	document.addEventListener("keydown", (e) => {
@@ -192,6 +208,12 @@
 	});
 
 	function startGame () {
+		clearKeys();  // Очищаємо стан клавіш при перезапуску гри
+
+		// Очищаємо масиви предметів і перешкод
+		items.length = 0;
+		obstacles.length = 0;
+
 		// Генеруємо предмети для збирання
 		for (let i = 0; i < 5; i++) {
 			items.push({
@@ -254,13 +276,20 @@
 				playerY < item.y + playerSize && playerY + playerSize > item.y) {
 				playerColor = item.color;
 				items.splice(index, 1);
+				if (items.length === 0) {
+					alert("Ви зібрали всі предмети! Почнемо спочатку.");
+					startGame();
+					playerX = 200;
+					playerY = 200;
+				}
 			}
 		});
 
 		obstacles.forEach(obstacle => {
 			if (playerX < obstacle.x + obstacle.width && playerX + playerSize > obstacle.x &&
 				playerY < obstacle.y + obstacle.height && playerY + playerSize > obstacle.y) {
-				// Перешкоди змушують гравця повертатися до початкової точки
+				alert("Ви зіткнулися з перешкодою! Почнемо спочатку.");
+				startGame();
 				playerX = 200;
 				playerY = 200;
 			}
@@ -275,6 +304,29 @@
 		}
 		return color;
 	}
+
+	function disableScroll () {
+		window.addEventListener("scroll", preventDefault, { passive: false });
+		document.body.style.overflow = "hidden";
+	}
+
+	function enableScroll () {
+		window.removeEventListener("scroll", preventDefault, { passive: false });
+		document.body.style.overflow = "auto";
+	}
+
+	function preventDefault (e) {
+		e.preventDefault();
+	}
+
+	function clearKeys () {
+		for (let key in keys) {
+			keys[key] = false;
+		}
+	}
+
+	gameCanvas.addEventListener("mouseenter", disableScroll);
+	gameCanvas.addEventListener("mouseleave", enableScroll);
 </script>
 </body>
 </html>
