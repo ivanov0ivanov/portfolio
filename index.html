@@ -169,7 +169,6 @@
 <footer>
 	<p>&copy; 2024 Портфоліо Front-End розробника. Всі права захищені.</p>
 </footer>
-```html
 <script>
 	const startGameButton = document.getElementById("start-game-button");
 	const endGameButton = document.getElementById("end-game-button");
@@ -184,6 +183,7 @@
 	const monsters = [];
 	let gameActive = false;
 	let playerMoved = false;
+	let victory = false;
 
 	// Створення модального вікна
 	const modal = document.createElement("div");
@@ -242,6 +242,7 @@
 
 		gameActive = true;
 		playerMoved = false;
+		victory = false;
 
 		// Генеруємо предмети для збирання
 		for (let i = 0; i < 5; i++) {
@@ -258,7 +259,8 @@
 				x: Math.random() * (gameCanvas.width - playerSize),
 				y: Math.random() * (gameCanvas.height - playerSize),
 				width: playerSize * 2,
-				height: playerSize * 2
+				height: playerSize * 2,
+				destroyed: false
 			});
 		}
 	}
@@ -268,7 +270,7 @@
 
 		ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 		movePlayer();
-		if (playerMoved) {
+		if (playerMoved && !victory) {
 			moveMonsters();
 		}
 		drawPlayer();
@@ -312,7 +314,9 @@
 	function drawMonsters () {
 		ctx.fillStyle = "#f00";
 		monsters.forEach(monster => {
-			ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+			if (!monster.destroyed) {
+				ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+			}
 		});
 	}
 
@@ -323,7 +327,8 @@
 				playerColor = item.color;
 				items.splice(index, 1);
 				if (items.length === 0) {
-					showModal(true);
+					victory = true;
+					destroyMonstersWithEffect().then(() => showModal(true));
 				}
 			}
 		});
@@ -335,15 +340,12 @@
 		});
 	}
 
-	function showModal (victory) {
+	function showModal (isVictory) {
 		gameActive = false;
 		modal.style.display = "block";
 		disableScroll();
 		modalRestartButton.addEventListener("click", restartGame);
 		modalExitButton.addEventListener("click", exitGame);
-		if (victory) {
-			destroyMonsters();
-		}
 	}
 
 	function hideModal () {
@@ -370,16 +372,35 @@
 		enableScroll();
 	}
 
-	function destroyMonsters () {
-		monsters.forEach((monster, index) => {
-			setTimeout(() => {
+	async function destroyMonstersWithEffect () {
+		for (let i = 0; i < monsters.length; i++) {
+			const monster = monsters[i];
+			monster.destroyed = true;
+			await animateMonsterDestruction(monster);
+		}
+	}
+
+	function animateMonsterDestruction (monster) {
+		return new Promise((resolve) => {
+			const explosionDuration = 500; // Тривалість вибуху в мілісекундах
+			const explosionFrames = 10; // Кількість кадрів вибуху
+			const explosionInterval = explosionDuration / explosionFrames;
+			let currentFrame = 0;
+
+			const explosionAnimation = setInterval(() => {
 				ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
-				setTimeout(() => {
-					ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
-				}, 100);
-			}, index * 100);
+				const explosionSize = monster.width + currentFrame * (monster.width / explosionFrames);
+				const halfExplosionSize = explosionSize / 2;
+				ctx.fillStyle = `rgba(255, 0, 0, ${1 - currentFrame / explosionFrames})`;
+				ctx.beginPath();
+				ctx.arc(monster.x + monster.width / 2, monster.y + monster.height / 2, halfExplosionSize, 0, Math.PI * 2);
+				ctx.fill();
+				currentFrame++;
+				if (currentFrame > explosionFrames) {
+					clearInterval(explosionAnimation);
+					resolve();
+				}
+			}, explosionInterval);
 		});
 	}
 
@@ -399,7 +420,9 @@
 
 	function enableScroll () {
 		window.removeEventListener("scroll", preventDefault, { passive: false });
-		document.body.style.overflow = "auto";
+		document.body.style.overflow =
+
+			"auto";
 	}
 
 	function preventDefault (e) {
