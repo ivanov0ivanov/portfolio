@@ -1,0 +1,121 @@
+body {
+	background-color: #000;
+	color: #fff;
+	font-family: 'Press Start 2P', cursive;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+.header {
+	background-color: #333;
+	padding: 20px;
+	animation: fadeIn 2s ease-in-out;
+}
+
+.header__title {
+	color: #0f0;
+}
+
+.nav__link {
+	color: #0f0;
+	text-decoration: none;
+	margin: 0 15px;
+	transition: color 0.3s;
+}
+
+.nav__link:hover {
+	color: #ff0;
+}
+
+.section {
+	padding: 20px;
+	animation: fadeIn 2s ease-in-out;
+}
+
+.pixel-border {
+	border: 4px solid #fff;
+	padding: 10px;
+	display: inline-block;
+	margin: 10px 0;
+}
+
+.portfolio__item {
+	margin: 20px 0;
+}
+
+.contact-form__input,
+.contact-form__textarea {
+	width: 100%;
+	padding: 10px;
+	margin: 10px 0;
+	border: 2px solid #fff;
+	background-color: #000;
+	color: #fff;
+	font-family: 'Press Start 2P', cursive;
+}
+
+.button {
+	padding: 10px 20px;
+	font-family: 'Press Start 2P', cursive;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.button--start-game {
+	background-color: #0f0;
+	border: none;
+}
+
+.button--end-game {
+	background-color: #f00;
+	border: none;
+	display: none;
+}
+
+.button--submit {
+	background-color: #0f0;
+	border: none;
+}
+
+.button:hover {
+	background-color: #ff0;
+}
+
+.footer {
+	background-color: #333;
+	padding: 10px;
+}
+
+.footer__text {
+	animation: fadeIn 2s ease-in-out;
+}
+
+.social-link {
+	color: #0f0;
+	margin: 0 10px;
+	transition: color 0.3s;
+}
+
+.social-link:hover {
+	color: #ff0;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.game-area {
+	display: none;
+	margin: 20px 0;
+}
+
+.game-canvas {
+	background-color: #000;
+	border: 4px solid #fff;
+}
