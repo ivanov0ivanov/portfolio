@@ -151,7 +151,7 @@ class Game {
 		this.monsters.forEach(monster => {
 			monster.x += monster.speedX;
 			monster.y += monster.speedY;
-			// Перевірка виходу за межі canvas
+			// Check for exit beyond the canvas
 			if (monster.x < 0 || monster.x > this.gameCanvas.width - monster.width || monster.y < 0 || monster.y > this.gameCanvas.height - monster.height) {
 				monster.speedX *= -1;
 				monster.speedY *= -1;
