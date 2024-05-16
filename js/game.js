@@ -60,8 +60,8 @@ class Game {
 			this.startGameButton.style.display = "inline-block";
 			this.endGameButton.style.display = "none";
 			this.enableScroll();
-			this.clearKeys();  // Очищаємо стан клавіш при завершенні гри
-			this.gameActive = false;  // Завершення гри
+			this.clearKeys();  // Clear the key state when the game is over
+			this.gameActive = false;  // End of the game
 		});
 
 		this.modalRestartButton.addEventListener("click", () => this.restartGame());
@@ -78,9 +78,9 @@ class Game {
 	}
 
 	startGame () {
-		this.clearKeys();  // Очищаємо стан клавіш при перезапуску гри
+		this.clearKeys(); // Clear the key state when the game is restarted
 
-		// Очищаємо масиви предметів і монстрів
+		// Clear the arrays of items and monsters
 		this.items.length = 0;
 		this.monsters.length = 0;
 
@@ -88,7 +88,7 @@ class Game {
 		this.playerMoved = false;
 		this.victory = false;
 
-		// Генеруємо предмети для збирання
+		// Generate items to collect
 		for (let i = 0; i < 5; i++) {
 			this.items.push({
 				x: Math.random() * (this.gameCanvas.width - this.playerSize),
@@ -97,7 +97,7 @@ class Game {
 			});
 		}
 
-		// Генеруємо монстрів
+		// Generate monsters
 		for (let i = 0; i < 3; i++) {
 			this.monsters.push({
 				x: Math.random() * (this.gameCanvas.width - this.playerSize),
@@ -140,8 +140,8 @@ class Game {
 			const dx = this.playerX - monster.x;
 			const dy = this.playerY - monster.y;
 			const distance = Math.sqrt(dx * dx + dy * dy);
-			const moveX = (dx / distance) * 1; // Швидкість монстрів по X
-			const moveY = (dy / distance) * 1; // Швидкість монстрів по Y
+			const moveX = (dx / distance) * 1; // Speed of monsters on X
+			const moveY = (dy / distance) * 1; // Speed of monsters on Y
 			monster.x += moveX;
 			monster.y += moveY;
 		});
@@ -250,8 +250,8 @@ class Game {
 
 	animateMonsterDestruction (monster) {
 		return new Promise((resolve) => {
-			const explosionDuration = 500; // Тривалість вибуху в мілісекундах
-			const explosionFrames = 10; // Кількість кадрів вибуху
+			const explosionDuration = 500; // Explosion duration in milliseconds
+			const explosionFrames = 10; // Number of explosion frames
 			const explosionInterval = explosionDuration / explosionFrames;
 			let currentFrame = 0;
 
