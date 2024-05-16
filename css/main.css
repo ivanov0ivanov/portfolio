@@ -40,8 +40,18 @@ body {
 	margin: 10px 0;
 }
 
-.portfolio__item {
-	margin: 20px 0;
+.typing {
+	border-right: .15em solid #fff;
+	animation: caret 0.75s step-end infinite;
+}
+
+@keyframes caret {
+	from, to {
+		border-color: transparent;
+	}
+	50% {
+		border-color: white;
+	}
 }
 
 .contact-form__input,
@@ -89,6 +99,11 @@ body {
 
 .footer__text {
 	animation: fadeIn 2s ease-in-out;
+}
+
+.social-links {
+	padding: 20px 20px 0;
+	margin-top: 40px;
 }
 
 .social-link {
