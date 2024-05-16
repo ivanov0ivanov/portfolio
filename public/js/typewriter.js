@@ -1,5 +1,6 @@
 class Typewriter {
 	constructor (element, speed = 50) {
+		this.startGameButton = document.getElementById("start-game-button");
 		this.element = element;
 		this.text = element.innerText;
 		this.speed = speed;
@@ -14,6 +15,7 @@ class Typewriter {
 			this.index++;
 			setTimeout(() => this.type(), this.speed);
 		} else {
+			this.startGameButton.style.opacity = "1";
 			setTimeout(() => this.element.classList.remove("typing"), 3000);
 		}
 	}
