@@ -31,45 +31,49 @@
 	</nav>
 </header>
 
-<section id="about" class="section section--about">
+<section id="about" class="section section__about">
 	<h2 class="section__title">Про мене</h2>
 	<div class="section__content pixel-border" id="typing-text">
 		<p>Я Front-End розробник з великим досвідом роботи. Моя спеціалізація - створення сучасних та інтерактивних
 			вебдодатків.</p>
 	</div>
-	<button id="start-game-button" class="button button--start-game">Почати міні-гру</button>
-	<button id="end-game-button" class="button button--end-game">Завершити гру</button>
+	<button id="start-game-button" class="button button__start-game">Почати міні-гру</button>
+	<button id="end-game-button" class="button button__end-game">Завершити гру</button>
 	<div class="game-area">
-		<canvas id="game-canvas" width="400" height="400" class="game-canvas"></canvas>
+		<canvas id="game-canvas" width="400" height="400" class="game-area__canvas"></canvas>
 	</div>
 </section>
 
-<section id="portfolio" class="section section--portfolio">
+<section id="portfolio" class="section section__portfolio">
 	<h2 class="section__title">Портфоліо</h2>
-	<div class="portfolio__item pixel-border">
-		<h3 class="portfolio__item-title">Проєкт 1</h3>
-		<p class="portfolio__item-description">Опис проєкту 1...</p>
-	</div>
-	<div class="portfolio__item pixel-border">
-		<h3 class="portfolio__item-title">Проєкт 2</h3>
-		<p class="portfolio__item-description">Опис проєкту 2...</p>
+	<div class="section__content">
+		<div class="portfolio__item pixel-border">
+			<h3 class="portfolio__item-title">Проєкт 1</h3>
+			<p class="portfolio__item-description">Опис проєкту 1...</p>
+		</div>
+		<div class="portfolio__item pixel-border">
+			<h3 class="portfolio__item-title">Проєкт 2</h3>
+			<p class="portfolio__item-description">Опис проєкту 2...</p>
+		</div>
 	</div>
 </section>
 
-<section id="contact" class="section section--contact">
+<section id="contact" class="section section__contact">
 	<h2 class="section__title">Контакти</h2>
-	<div class="contact-form pixel-border">
-		<form>
-			<input type="text" name="name" placeholder="Ваше ім'я" class="contact-form__input">
-			<input type="email" name="email" placeholder="Ваш Email" class="contact-form__input">
-			<textarea name="message" rows="5" placeholder="Ваше повідомлення" class="contact-form__textarea"></textarea>
-			<button type="submit" class="button button--submit">Надіслати</button>
-		</form>
-	</div>
-	<div class="social-links">
-		<a href="https://twitter.com" target="_blank" class="social-link">Twitter</a>
-		<a href="https://linkedin.com" target="_blank" class="social-link">LinkedIn</a>
-		<a href="https://github.com" target="_blank" class="social-link">GitHub</a>
+	<div class="section__content">
+		<div class="contact-form pixel-border">
+			<form>
+				<input type="text" name="name" placeholder="Ваше ім'я" class="contact-form__input">
+				<input type="email" name="email" placeholder="Ваш Email" class="contact-form__input">
+				<textarea name="message" rows="5" placeholder="Ваше повідомлення" class="contact-form__textarea"></textarea>
+				<button type="submit" class="button button__submit">Надіслати</button>
+			</form>
+		</div>
+		<div class="social-links">
+			<a href="https://twitter.com" target="_blank" class="social-link">Twitter</a>
+			<a href="https://linkedin.com" target="_blank" class="social-link">LinkedIn</a>
+			<a href="https://github.com" target="_blank" class="social-link">GitHub</a>
+		</div>
 	</div>
 </section>
 
