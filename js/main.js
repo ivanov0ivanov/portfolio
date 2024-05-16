@@ -1,302 +1,313 @@
-const startGameButton = document.getElementById("start-game-button");
-const endGameButton = document.getElementById("end-game-button");
-const gameArea = document.querySelector(".game-area");
-const gameCanvas = document.getElementById("game-canvas");
-const ctx = gameCanvas.getContext("2d");
-let playerX = 200, playerY = 200;
-const playerSize = 20;
-let playerColor = "#0f0";
-const keys = {};
-const items = [];
-const monsters = [];
-let gameActive = false;
-let playerMoved = false;
-let victory = false;
+class Game {
+	constructor () {
+		this.startGameButton = document.getElementById("start-game-button");
+		this.endGameButton = document.getElementById("end-game-button");
+		this.gameArea = document.querySelector(".game-area");
+		this.gameCanvas = document.getElementById("game-canvas");
+		this.ctx = this.gameCanvas.getContext("2d");
 
-// Створення модального вікна
-const modal = document.createElement("div");
-modal.style.position = "fixed";
-modal.style.top = "50%";
-modal.style.left = "50%";
-modal.style.transform = "translate(-50%, -50%)";
-modal.style.backgroundColor = "#333";
-modal.style.padding = "20px";
-modal.style.border = "4px solid #fff";
-modal.style.display = "none";
-modal.style.zIndex = "1000";
-modal.style.textAlign = "center";
-modal.innerHTML = `
-	<h2 id="modal-message" style="color: #0f0;"></h2>
-	<button id="modal-restart-button" style="padding: 10px 20px; margin: 10px; background-color: #0f0; border: none; cursor: pointer;">Почати знову</button>
-	<button id="modal-exit-button" style="padding: 10px 20px; margin: 10px; background-color: #f00; border: none; cursor: pointer;">Вийти</button>
-	`;
-document.body.appendChild(modal);
+		this.playerX = 200;
+		this.playerY = 200;
+		this.playerSize = 20;
+		this.playerColor = "#0f0";
+		this.keys = {};
+		this.items = [];
+		this.monsters = [];
+		this.gameActive = false;
+		this.playerMoved = false;
+		this.victory = false;
 
-const modalMessage = document.getElementById("modal-message");
-const modalRestartButton = document.getElementById("modal-restart-button");
-const modalExitButton = document.getElementById("modal-exit-button");
+		this.initModal();
+		this.initEventListeners();
+	}
 
-startGameButton.addEventListener("click", () => {
-	gameArea.style.display = "block";
-	startGameButton.style.display = "none";
-	endGameButton.style.display = "inline-block";
-	startGame();
-	gameLoop();
-	disableScroll();
-});
+	initModal () {
+		this.modal = document.createElement("div");
+		this.modal.style.position = "fixed";
+		this.modal.style.top = "50%";
+		this.modal.style.left = "50%";
+		this.modal.style.transform = "translate(-50%, -50%)";
+		this.modal.style.backgroundColor = "#333";
+		this.modal.style.padding = "20px";
+		this.modal.style.border = "4px solid #fff";
+		this.modal.style.display = "none";
+		this.modal.style.zIndex = "1000";
+		this.modal.style.textAlign = "center";
+		this.modal.innerHTML = `
+			<h2 id="modal-message" style="color: #0f0;"></h2>
+			<button id="modal-restart-button" style="padding: 10px 20px; margin: 10px; background-color: #0f0; border: none; cursor: pointer;">Почати знову</button>
+			<button id="modal-exit-button" style="padding: 10px 20px; margin: 10px; background-color: #f00; border: none; cursor: pointer;">Вийти</button>
+		`;
+		document.body.appendChild(this.modal);
 
-endGameButton.addEventListener("click", () => {
-	gameArea.style.display = "none";
-	startGameButton.style.display = "inline-block";
-	endGameButton.style.display = "none";
-	enableScroll();
-	clearKeys();  // Очищаємо стан клавіш при завершенні гри
-	gameActive = false;  // Завершення гри
-});
+		this.modalMessage = document.getElementById("modal-message");
+		this.modalRestartButton = document.getElementById("modal-restart-button");
+		this.modalExitButton = document.getElementById("modal-exit-button");
+	}
 
-modalRestartButton.addEventListener("click", restartGame);
-modalExitButton.addEventListener("click", exitGame);
+	initEventListeners () {
+		this.startGameButton.addEventListener("click", () => {
+			this.gameArea.style.display = "block";
+			this.startGameButton.style.display = "none";
+			this.endGameButton.style.display = "inline-block";
+			this.startGame();
+			this.gameLoop();
+			this.disableScroll();
+		});
 
-document.addEventListener("keydown", (e) => {
-	keys[e.key] = true;
-	playerMoved = true;
-});
+		this.endGameButton.addEventListener("click", () => {
+			this.gameArea.style.display = "none";
+			this.startGameButton.style.display = "inline-block";
+			this.endGameButton.style.display = "none";
+			this.enableScroll();
+			this.clearKeys();  // Очищаємо стан клавіш при завершенні гри
+			this.gameActive = false;  // Завершення гри
+		});
 
-document.addEventListener("keyup", (e) => {
-	keys[e.key] = false;
-});
+		this.modalRestartButton.addEventListener("click", () => this.restartGame());
+		this.modalExitButton.addEventListener("click", () => this.exitGame());
 
-function startGame () {
-	clearKeys();  // Очищаємо стан клавіш при перезапуску гри
+		document.addEventListener("keydown", (e) => {
+			this.keys[e.key] = true;
+			this.playerMoved = true;
+		});
 
-	// Очищаємо масиви предметів і монстрів
-	items.length = 0;
-	monsters.length = 0;
-
-	gameActive = true;
-	playerMoved = false;
-	victory = false;
-
-	// Генеруємо предмети для збирання
-	for (let i = 0; i < 5; i++) {
-		items.push({
-			x: Math.random() * (gameCanvas.width - playerSize),
-			y: Math.random() * (gameCanvas.height - playerSize),
-			color: getRandomColor()
+		document.addEventListener("keyup", (e) => {
+			this.keys[e.key] = false;
 		});
 	}
 
-	// Генеруємо монстрів
-	for (let i = 0; i < 3; i++) {
-		monsters.push({
-			x: Math.random() * (gameCanvas.width - playerSize),
-			y: Math.random() * (gameCanvas.height - playerSize),
-			width: playerSize * 2,
-			height: playerSize * 2,
-			destroyed: false,
-			speedX: 0,
-			speedY: 0
+	startGame () {
+		this.clearKeys();  // Очищаємо стан клавіш при перезапуску гри
+
+		// Очищаємо масиви предметів і монстрів
+		this.items.length = 0;
+		this.monsters.length = 0;
+
+		this.gameActive = true;
+		this.playerMoved = false;
+		this.victory = false;
+
+		// Генеруємо предмети для збирання
+		for (let i = 0; i < 5; i++) {
+			this.items.push({
+				x: Math.random() * (this.gameCanvas.width - this.playerSize),
+				y: Math.random() * (this.gameCanvas.height - this.playerSize),
+				color: this.getRandomColor()
+			});
+		}
+
+		// Генеруємо монстрів
+		for (let i = 0; i < 3; i++) {
+			this.monsters.push({
+				x: Math.random() * (this.gameCanvas.width - this.playerSize),
+				y: Math.random() * (this.gameCanvas.height - this.playerSize),
+				width: this.playerSize * 2,
+				height: this.playerSize * 2,
+				destroyed: false,
+				speedX: 0,
+				speedY: 0
+			});
+		}
+	}
+
+	gameLoop () {
+		if (!this.gameActive) return;
+
+		this.ctx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
+		this.movePlayer();
+		if (this.playerMoved && !this.victory) {
+			this.moveMonsters();
+		} else if (this.victory) {
+			this.moveMonstersRandomly();
+		}
+		this.drawPlayer();
+		this.drawItems();
+		this.drawMonsters();
+		this.checkCollisions();
+		requestAnimationFrame(() => this.gameLoop());
+	}
+
+	movePlayer () {
+		if (this.keys["ArrowUp"] && this.playerY > 0) this.playerY -= 2;
+		if (this.keys["ArrowDown"] && this.playerY < this.gameCanvas.height - this.playerSize) this.playerY += 2;
+		if (this.keys["ArrowLeft"] && this.playerX > 0) this.playerX -= 2;
+		if (this.keys["ArrowRight"] && this.playerX < this.gameCanvas.width - this.playerSize) this.playerX += 2;
+	}
+
+	moveMonsters () {
+		this.monsters.forEach(monster => {
+			const dx = this.playerX - monster.x;
+			const dy = this.playerY - monster.y;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			const moveX = (dx / distance) * 1; // Швидкість монстрів по X
+			const moveY = (dy / distance) * 1; // Швидкість монстрів по Y
+			monster.x += moveX;
+			monster.y += moveY;
 		});
 	}
-}
 
-function gameLoop () {
-	if (!gameActive) return;
-
-	ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-	movePlayer();
-	if (playerMoved && !victory) {
-		moveMonsters();
-	} else if (victory) {
-		moveMonstersRandomly();
-	}
-	drawPlayer();
-	drawItems();
-	drawMonsters();
-	checkCollisions();
-	requestAnimationFrame(gameLoop);
-}
-
-function movePlayer () {
-	if (keys["ArrowUp"] && playerY > 0) playerY -= 2;
-	if (keys["ArrowDown"] && playerY < gameCanvas.height - playerSize) playerY += 2;
-	if (keys["ArrowLeft"] && playerX > 0) playerX -= 2;
-	if (keys["ArrowRight"] && playerX < gameCanvas.width - playerSize) playerX += 2;
-}
-
-function moveMonsters () {
-	monsters.forEach(monster => {
-		const dx = playerX - monster.x;
-		const dy = playerY - monster.y;
-		const distance = Math.sqrt(dx * dx + dy * dy);
-		const moveX = (dx / distance) * 1; // Швидкість монстрів по X
-		const moveY = (dy / distance) * 1; // Швидкість монстрів по Y
-		monster.x += moveX;
-		monster.y += moveY;
-	});
-}
-
-function moveMonstersRandomly () {
-	monsters.forEach(monster => {
-		monster.x += monster.speedX;
-		monster.y += monster.speedY;
-		// Перевірка виходу за межі canvas
-		if (monster.x < 0 || monster.x > gameCanvas.width - monster.width ||
-			monster.y < 0 || monster.y > gameCanvas.height - monster.height) {
-			monster.speedX *= -1;
-			monster.speedY *= -1;
-		}
-	});
-}
-
-function drawPlayer () {
-	ctx.fillStyle = playerColor;
-	ctx.fillRect(playerX, playerY, playerSize, playerSize);
-}
-
-function drawItems () {
-	items.forEach(item => {
-		ctx.fillStyle = item.color;
-		ctx.fillRect(item.x, item.y, playerSize, playerSize);
-	});
-}
-
-function drawMonsters () {
-	ctx.fillStyle = "#f00";
-	monsters.forEach(monster => {
-		if (!monster.destroyed) {
-			ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
-		}
-	});
-}
-
-function checkCollisions () {
-	items.forEach((item, index) => {
-		if (playerX < item.x + playerSize && playerX + playerSize > item.x &&
-			playerY < item.y + playerSize && playerY + playerSize > item.y) {
-			playerColor = item.color;
-			items.splice(index, 1);
-			if (items.length === 0) {
-				victory = true;
-				monsters.forEach(monster => {
-					const dx = monster.x - playerX;
-					const dy = monster.y - playerY;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-					monster.speedX = (dx / distance) * 3;
-					monster.speedY = (dy / distance) * 3;
-				});
-				destroyMonstersWithEffect().then(() => showModal(true));
+	moveMonstersRandomly () {
+		this.monsters.forEach(monster => {
+			monster.x += monster.speedX;
+			monster.y += monster.speedY;
+			// Перевірка виходу за межі canvas
+			if (monster.x < 0 || monster.x > this.gameCanvas.width - monster.width || monster.y < 0 || monster.y > this.gameCanvas.height - monster.height) {
+				monster.speedX *= -1;
+				monster.speedY *= -1;
 			}
-		}
-	});
-	monsters.forEach(monster => {
-		if (!victory && playerX < monster.x + monster.width && playerX + playerSize > monster.x &&
-			playerY < monster.y + monster.height && playerY + playerSize > monster.y) {
-			showModal(false);
-		}
-	});
-}
-
-function showModal (isVictory) {
-	gameActive = false;
-	if (isVictory) {
-		modalMessage.textContent = "Ви виграли!";
-		modalMessage.style.color = "#0f0";
-	} else {
-		modalMessage.textContent = "Гра завершена! Вас з'їли монстри!";
-		modalMessage.style.color = "#f00";
+		});
 	}
-	modal.style.display = "block";
-	disableScroll();
-}
 
-function hideModal () {
-	modal.style.display = "none";
-	enableScroll();
-}
-
-function restartGame () {
-	hideModal();
-	startGame();
-	playerX = 200;
-	playerY = 200;
-	gameActive = true;
-	gameLoop();
-}
-
-function exitGame () {
-	hideModal();
-	gameArea.style.display = "none";
-	startGameButton.style.display = "inline-block";
-	endGameButton.style.display = "none";
-	enableScroll();
-}
-
-async function destroyMonstersWithEffect () {
-	for (let i = 0; i < monsters.length; i++) {
-		const monster = monsters[i];
-		monster.destroyed = true;
-		await animateMonsterDestruction(monster);
+	drawPlayer () {
+		this.ctx.fillStyle = this.playerColor;
+		this.ctx.fillRect(this.playerX, this.playerY, this.playerSize, this.playerSize);
 	}
-}
 
-function animateMonsterDestruction (monster) {
-	return new Promise((resolve) => {
-		const explosionDuration = 500; // Тривалість вибуху в мілісекундах
-		const explosionFrames = 10; // Кількість кадрів вибуху
-		const explosionInterval = explosionDuration / explosionFrames;
-		let currentFrame = 0;
+	drawItems () {
+		this.items.forEach(item => {
+			this.ctx.fillStyle = item.color;
+			this.ctx.fillRect(item.x, item.y, this.playerSize, this.playerSize);
+		});
+	}
 
-		const fragments = 5;
-		const fragmentSize = monster.width / fragments;
-		const fragmentSpeed = 3;
-
-		const explosionAnimation = setInterval(() => {
-			ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
-			for (let i = 0; i < fragments; i++) {
-				const angle = (Math.PI * 2 / fragments) * i;
-				const fragmentX = monster.x + fragmentSpeed * currentFrame * Math.cos(angle);
-				const fragmentY = monster.y + fragmentSpeed * currentFrame * Math.sin(angle);
-				ctx.fillStyle = `rgba(255, 0, 0, ${1 - currentFrame / explosionFrames})`;
-				ctx.fillRect(fragmentX, fragmentY, fragmentSize, fragmentSize);
+	drawMonsters () {
+		this.ctx.fillStyle = "#f00";
+		this.monsters.forEach(monster => {
+			if (!monster.destroyed) {
+				this.ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
 			}
-			currentFrame++;
-			if (currentFrame > explosionFrames) {
-				clearInterval(explosionAnimation);
-				resolve();
+		});
+	}
+
+	checkCollisions () {
+		this.items.forEach((item, index) => {
+			if (this.playerX < item.x + this.playerSize && this.playerX + this.playerSize > item.x && this.playerY < item.y + this.playerSize && this.playerY + this.playerSize > item.y) {
+				this.playerColor = item.color;
+				this.items.splice(index, 1);
+				if (this.items.length === 0) {
+					this.victory = true;
+					this.monsters.forEach(monster => {
+						const dx = monster.x - this.playerX;
+						const dy = monster.y - this.playerY;
+						const distance = Math.sqrt(dx * dx + dy * dy);
+						monster.speedX = (dx / distance) * 3;
+						monster.speedY = (dy / distance) * 3;
+					});
+					this.destroyMonstersWithEffect().then(() => this.showModal(true));
+				}
 			}
-		}, explosionInterval);
-	});
-}
-
-function getRandomColor () {
-	const letters = "0123456789ABCDEF";
-	let color = "#";
-	for (let i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
+		});
+		this.monsters.forEach(monster => {
+			if (!this.victory && this.playerX < monster.x + monster.width && this.playerX + this.playerSize > monster.x && this.playerY < monster.y + monster.height && this.playerY + this.playerSize > monster.y) {
+				this.showModal(false);
+			}
+		});
 	}
-	return color;
-}
 
-function disableScroll () {
-	window.addEventListener("scroll", preventDefault, { passive: false });
-	document.body.style.overflow = "hidden";
-}
+	showModal (isVictory) {
+		this.gameActive = false;
+		if (isVictory) {
+			this.modalMessage.textContent = "Ви виграли!";
+			this.modalMessage.style.color = "#0f0";
+		} else {
+			this.modalMessage.textContent = "Гра завершена! Вас з'їли монстри!";
+			this.modalMessage.style.color = "#f00";
+		}
+		this.modal.style.display = "block";
+		this.disableScroll();
+	}
 
-function enableScroll () {
-	window.removeEventListener("scroll", preventDefault, { passive: false });
-	document.body.style.overflow = "auto";
-}
+	hideModal () {
+		this.modal.style.display = "none";
+		this.enableScroll();
+	}
 
-function preventDefault (e) {
-	e.preventDefault();
-}
+	restartGame () {
+		this.hideModal();
+		this.startGame();
+		this.playerX = 200;
+		this.playerY = 200;
+		this.gameActive = true;
+		this.gameLoop();
+	}
 
-function clearKeys () {
-	for (let key in keys) {
-		keys[key] = false;
+	exitGame () {
+		this.hideModal();
+		this.gameArea.style.display = "none";
+		this.startGameButton.style.display = "inline-block";
+		this.endGameButton.style.display = "none";
+		this.enableScroll();
+	}
+
+	async destroyMonstersWithEffect () {
+		for (let i = 0; i < this.monsters.length; i++) {
+			const monster = this.monsters[i];
+			monster.destroyed = true;
+			await this.animateMonsterDestruction(monster);
+		}
+	}
+
+	animateMonsterDestruction (monster) {
+		return new Promise((resolve) => {
+			const explosionDuration = 500; // Тривалість вибуху в мілісекундах
+			const explosionFrames = 10; // Кількість кадрів вибуху
+			const explosionInterval = explosionDuration / explosionFrames;
+			let currentFrame = 0;
+
+			const fragments = 5;
+			const fragmentSize = monster.width / fragments;
+			const fragmentSpeed = 3;
+
+			const explosionAnimation = setInterval(() => {
+				this.ctx.clearRect(monster.x, monster.y, monster.width, monster.height);
+				for (let i = 0; i < fragments; i++) {
+					const angle = (Math.PI * 2 / fragments) * i;
+					const fragmentX = monster.x + fragmentSpeed * currentFrame * Math.cos(angle);
+					const fragmentY = monster.y + fragmentSpeed * currentFrame * Math.sin(angle);
+					this.ctx.fillStyle = `rgba(255, 0, 0, ${1 - currentFrame / explosionFrames})`;
+					this.ctx.fillRect(fragmentX, fragmentY, fragmentSize, fragmentSize);
+				}
+				currentFrame++;
+				if (currentFrame > explosionFrames) {
+					clearInterval(explosionAnimation);
+					resolve();
+				}
+			}, explosionInterval);
+		});
+	}
+
+	getRandomColor () {
+		const letters = "0123456789ABCDEF";
+		let color = "#";
+		for (let i = 0; i < 6; i++) {
+			color += letters[Math.floor(Math.random() * 16)];
+		}
+		return color;
+	}
+
+	disableScroll () {
+		window.addEventListener("scroll", this.preventDefault, { passive: false });
+		document.body.style.overflow = "hidden";
+	}
+
+	enableScroll () {
+		window.removeEventListener("scroll", this.preventDefault, { passive: false });
+		document.body.style.overflow = "auto";
+	}
+
+	preventDefault (e) {
+		e.preventDefault();
+	}
+
+	clearKeys () {
+		for (let key in this.keys) {
+			this.keys[key] = false;
+		}
 	}
 }
 
-gameCanvas.addEventListener("mouseenter", disableScroll);
-gameCanvas.addEventListener("mouseleave", enableScroll);
+const game = new Game();
+
+game.gameCanvas.addEventListener("mouseenter", () => game.disableScroll());
+game.gameCanvas.addEventListener("mouseleave", () => game.enableScroll());
