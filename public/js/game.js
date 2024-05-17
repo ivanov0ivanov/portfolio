@@ -5,6 +5,10 @@ class Game {
 		this.gameArea = document.querySelector(".game-area");
 		this.gameCanvas = document.getElementById("game-canvas");
 		this.ctx = this.gameCanvas.getContext("2d");
+		this.gameModal = document.getElementById("game-modal");
+		this.gameModalMessage = document.getElementById("modal-message");
+		this.gameModalRestartButton = document.getElementById("modal-restart-button");
+		this.gameModalExitButton = document.getElementById("modal-exit-button");
 
 		this.playerX = 200;
 		this.playerY = 200;
@@ -17,32 +21,7 @@ class Game {
 		this.playerMoved = false;
 		this.victory = false;
 
-		this.initModal();
 		this.initEventListeners();
-	}
-
-	initModal () {
-		this.modal = document.createElement("div");
-		this.modal.style.position = "fixed";
-		this.modal.style.top = "50%";
-		this.modal.style.left = "50%";
-		this.modal.style.transform = "translate(-50%, -50%)";
-		this.modal.style.backgroundColor = "#333";
-		this.modal.style.padding = "20px";
-		this.modal.style.border = "4px solid #fff";
-		this.modal.style.display = "none";
-		this.modal.style.zIndex = "1000";
-		this.modal.style.textAlign = "center";
-		this.modal.innerHTML = `
-			<h2 id="modal-message" style="color: #0f0;"></h2>
-			<button id="modal-restart-button" style="padding: 10px 20px; margin: 10px; background-color: #0f0; border: none; cursor: pointer;">Почати знову</button>
-			<button id="modal-exit-button" style="padding: 10px 20px; margin: 10px; background-color: #f00; border: none; cursor: pointer;">Вийти</button>
-		`;
-		document.body.appendChild(this.modal);
-
-		this.modalMessage = document.getElementById("modal-message");
-		this.modalRestartButton = document.getElementById("modal-restart-button");
-		this.modalExitButton = document.getElementById("modal-exit-button");
 	}
 
 	initEventListeners () {
@@ -50,35 +29,56 @@ class Game {
 			this.gameArea.style.display = "block";
 			this.startGameButton.style.display = "none";
 			this.endGameButton.style.display = "inline-block";
+			this.scrollToGame();
+			this.toggleScroll(true);
+			this.toggleZoom(true);
 			this.startGame();
 			this.gameLoop();
-			this.disableScroll();
 		});
 
 		this.endGameButton.addEventListener("click", () => {
 			this.gameArea.style.display = "none";
 			this.startGameButton.style.display = "inline-block";
 			this.endGameButton.style.display = "none";
-			this.enableScroll();
-			this.clearKeys();  // Clear the key state when the game is over
-			this.gameActive = false;  // End of the game
+			this.toggleScroll();
+			this.toggleZoom();
+			this.clearKeys(); // Clear the key state when the game is over
+			this.gameActive = false; // End of the game
 		});
 
-		this.modalRestartButton.addEventListener("click", () => this.restartGame());
-		this.modalExitButton.addEventListener("click", () => this.exitGame());
+		this.gameModalRestartButton.addEventListener("click", () => this.restartGame());
+		this.gameModalExitButton.addEventListener("click", () => this.exitGame());
 
-		document.addEventListener("keydown", (e) => {
+		document.addEventListener("keydown", e => {
 			this.keys[e.key] = true;
 			this.playerMoved = true;
 		});
 
-		document.addEventListener("keyup", (e) => {
+		document.addEventListener("keyup", e => {
 			this.keys[e.key] = false;
 		});
+
+		// Add event listeners for touch controls,
+		// setting the corresponding key as active on "touch start" and inactive on "touch end".
+		const addTouchListener = (buttonId, key) => {
+			const button = document.getElementById(buttonId);
+			button.addEventListener("touchstart", () => {
+				this.keys[key] = true;
+				this.playerMoved = true;
+			});
+			button.addEventListener("touchend", () => this.keys[key] = false);
+		};
+
+		// Add touch listeners for mobile controls
+		addTouchListener("up-button", "ArrowUp");
+		addTouchListener("down-button", "ArrowDown");
+		addTouchListener("left-button", "ArrowLeft");
+		addTouchListener("right-button", "ArrowRight");
 	}
 
 	startGame () {
-		this.clearKeys(); // Clear the key state when the game is restarted
+		// Clear the key state when the game is restarted
+		this.clearKeys();
 
 		// Clear the arrays of items and monsters
 		this.items.length = 0;
@@ -161,7 +161,9 @@ class Game {
 
 	drawPlayer () {
 		this.ctx.fillStyle = this.playerColor;
-		this.ctx.fillRect(this.playerX, this.playerY, this.playerSize, this.playerSize);
+		this.ctx.beginPath();
+		this.ctx.arc(this.playerX + this.playerSize / 2, this.playerY + this.playerSize / 2, this.playerSize / 2, 0, Math.PI * 2);
+		this.ctx.fill();
 	}
 
 	drawItems () {
@@ -208,19 +210,19 @@ class Game {
 	showModal (isVictory) {
 		this.gameActive = false;
 		if (isVictory) {
-			this.modalMessage.textContent = "Ви виграли!";
-			this.modalMessage.style.color = "#0f0";
+			this.gameModalMessage.textContent = "Ви виграли!";
+			this.gameModalMessage.style.color = "#0f0";
 		} else {
-			this.modalMessage.textContent = "Гра завершена! Вас з'їли монстри!";
-			this.modalMessage.style.color = "#f00";
+			this.gameModalMessage.textContent = "Гра завершена! Вас з'їли монстри!";
+			this.gameModalMessage.style.color = "#f00";
 		}
-		this.modal.style.display = "block";
-		this.disableScroll();
+		this.gameModal.style.display = "block";
+		this.toggleScroll(true);
 	}
 
 	hideModal () {
-		this.modal.style.display = "none";
-		this.enableScroll();
+		this.gameModal.style.display = "none";
+		this.toggleScroll();
 	}
 
 	restartGame () {
@@ -237,7 +239,7 @@ class Game {
 		this.gameArea.style.display = "none";
 		this.startGameButton.style.display = "inline-block";
 		this.endGameButton.style.display = "none";
-		this.enableScroll();
+		this.toggleScroll();
 	}
 
 	async destroyMonstersWithEffect () {
@@ -286,18 +288,23 @@ class Game {
 		return color;
 	}
 
-	disableScroll () {
-		window.addEventListener("scroll", this.preventDefault, { passive: false });
-		document.body.style.overflow = "hidden";
-	}
-
-	enableScroll () {
-		window.removeEventListener("scroll", this.preventDefault, { passive: false });
-		document.body.style.overflow = "auto";
-	}
-
 	preventDefault (e) {
 		e.preventDefault();
+	}
+
+	toggleScroll (disable = false) {
+		window[disable ? "addEventListener" : "removeEventListener"]("scroll", this.preventDefault, { passive: false });
+		document.body.style.overflow = disable ? "hidden" : "auto";
+	}
+
+	toggleZoom (disable = false) {
+		document[disable ? "addEventListener" : "removeEventListener"]("gesturestart", this.preventDefault, { passive: false });
+	}
+
+	scrollToGame () {
+		if (window.innerWidth <= 768) {
+			this.endGameButton.scrollIntoView({ behavior: "smooth" });
+		}
 	}
 
 	clearKeys () {
@@ -309,5 +316,5 @@ class Game {
 
 const game = new Game();
 
-game.gameCanvas.addEventListener("mouseenter", () => game.disableScroll());
-game.gameCanvas.addEventListener("mouseleave", () => game.enableScroll());
+game.gameCanvas.addEventListener("mouseenter", () => game.toggleScroll(true));
+game.gameCanvas.addEventListener("mouseleave", () => game.toggleScroll());

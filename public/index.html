@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<title>Портфоліо Front-End</title>
 	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/normalize.css">
@@ -45,10 +45,17 @@
 		<canvas id="game-canvas" width="400" height="400" class="game-area__canvas"></canvas>
 		<div class="game-area__controls">
 			<button id="up-button" class="game-area__control">↑</button>
-			<button id="left-button" class="game-area__control"><</button>
-			<button id="right-button" class="game-area__control">></button>
+			<span>
+				<button id="left-button" class="game-area__control"><</button>
+				<button id="right-button" class="game-area__control">></button>
+			</span>
 			<button id="down-button" class="game-area__control">↓</button>
 		</div>
+	</div>
+	<div id="game-modal" class="game-modal">
+		<h2 id="modal-message" class="game-modal__message"></h2>
+		<button id="modal-restart-button" class="game-modal__button game-modal__button_restart">Почати знову</button>
+		<button id="modal-exit-button" class="game-modal__button game-modal__button_exit">Вийти</button>
 	</div>
 </section>
 

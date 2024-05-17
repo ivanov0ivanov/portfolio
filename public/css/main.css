@@ -1,4 +1,5 @@
 * {
+	box-sizing: border-box;
 	font-family: 'Press Start 2P', cursive;
 }
 
@@ -136,8 +137,8 @@ body::-webkit-scrollbar-track {
 }
 
 .footer {
-	background-color: #333;
 	padding: 10px;
+	background-color: #333;
 }
 
 .footer__text {
@@ -188,34 +189,98 @@ body::-webkit-scrollbar-track {
 }
 
 .game-area {
+	width: 100%;
 	display: none;
 	margin: 20px 0;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .game-area__canvas {
-	background-color: #000;
 	border: 4px solid #fff;
+	background-color: #000;
+}
+
+@media (max-width: 480px) {
+	.game-area__canvas {
+		width: inherit;
+	}
 }
 
 .game-area__controls {
 	display: none;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
 	margin: 20px 0;
 }
 
-.game-area__control {
+.game-area__controls span {
+	width: 240px;
+	display: flex;
+	justify-content: space-between;
 	background-color: #0f0;
-	border: none;
-	font-size: 20px;
-	padding: 10px 20px;
-	margin: 0 10px;
 }
 
-.game-area__control:hover {
+.game-area__control {
+	width: 80px;
+	height: 80px;
+	border: none;
+	font-size: 20px;
+	background-color: #0f0;
+}
+
+.game-area__control:hover,
+.game-area__control:active {
 	background-color: #ff0;
+}
+
+.game-area__control:focus {
+	outline: none;
 }
 
 @media (max-width: 768px) {
 	.game-area__controls {
-		display: block;
+		display: flex;
 	}
+}
+
+.game-modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	display: none;
+	padding: 20px;
+	border: 4px solid #fff;
+	text-align: center;
+	background-color: #333;
+	transform: translate(-50%, -50%);
+	z-index: 1000;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.game-modal__message {
+	color: #0f0;
+}
+
+.game-modal__button {
+	margin: 10px;
+	padding: 10px 20px;
+	border: none;
+	cursor: pointer;
+}
+
+.game-modal__button_restart {
+	background-color: #0f0;
+}
+
+.game-modal__button_exit {
+	background-color: #f00;
 }
