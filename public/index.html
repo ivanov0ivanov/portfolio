@@ -25,9 +25,9 @@
 <header class="header">
 	<h1 class="header__title">Портфоліо Front-End</h1>
 	<nav class="header__nav">
-		<a href="#about" class="nav__link">Про мене</a>
-		<a href="#portfolio" class="nav__link">Портфоліо</a>
-		<a href="#contact" class="nav__link">Контакти</a>
+		<a href="#about" class="nav-link">Про мене</a>
+		<a href="#portfolio" class="nav-link">Портфоліо</a>
+		<a href="#contact" class="nav-link">Контакти</a>
 	</nav>
 </header>
 
@@ -37,10 +37,18 @@
 		<p>Я Front-End розробник з великим досвідом роботи. Моя спеціалізація - створення сучасних та інтерактивних
 			вебдодатків.</p>
 	</div>
-	<button id="start-game-button" class="button button__start-game">Почати міні-гру</button>
-	<button id="end-game-button" class="button button__end-game">Завершити гру</button>
+	<div>
+		<button id="start-game-button" class="button button__start-game">Почати міні-гру</button>
+		<button id="end-game-button" class="button button__end-game">Завершити гру</button>
+	</div>
 	<div class="game-area">
 		<canvas id="game-canvas" width="400" height="400" class="game-area__canvas"></canvas>
+		<div class="game-area__controls">
+			<button id="up-button" class="game-area__control">↑</button>
+			<button id="left-button" class="game-area__control"><</button>
+			<button id="right-button" class="game-area__control">></button>
+			<button id="down-button" class="game-area__control">↓</button>
+		</div>
 	</div>
 </section>
 
@@ -78,7 +86,7 @@
 </section>
 
 <footer class="footer">
-	<p class="footer__text">&copy; 2024 Портфоліо Front-End. Всі права захищені.</p>
+	<p class="footer__text">&copy; 2024 Портфоліо Front-End. Всі права не захищені.</p>
 </footer>
 
 <script src="js/main.js"></script>
